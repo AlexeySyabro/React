@@ -1,0 +1,12 @@
+.field {
+    border-radius: 10px;
+    box-sizing: border-box;
+    height: 50px;
+    width: 100%;
+}
+
+.btn {
+    padding: 14px 40px;
+    background-color: green;
+    color: white;
+}
