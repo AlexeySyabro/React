@@ -1,11 +1,18 @@
+import React from 'react';
+import PropTypes from 'prop-types';
 import './style.css';
 
-export const Message = ({ text }) =>{
-
+export const Message = ({ text, author }) => {
     return (
-        <h1 className="style">
-            {text}
-        </h1>
-    );
+    <div>
+    <span>
+        {author}: {text}
+    </span>
+    </div>
+);
 };
 
+Message.propTypes = {
+    text: PropTypes.string.isRequired,
+    author: PropTypes.string.isRequired,
+};

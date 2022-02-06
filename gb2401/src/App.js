@@ -1,35 +1,49 @@
 import './App.css';
-import { Message } from './components/Message';
-import { Counter } from './components/Counter';
-import { useState } from 'react';
-import { Form } from './components/Form';
-
-const myText = "This could be your ad"
+import { useEffect, useState, useRef } from 'react';
+import { AUTHORS } from './components/utils/constants';
+import { MessageList } from './components/MessageList';
+import { FormMui } from './components/FormMui';
+import { GutterlessList } from './components/ChatsList';
 
 function App() {
   const [messageList, setMessageList] = useState([]);
-  const handelMessageClick = () => {
-    console.log('hello');
+  const messageEnd = useRef();
+  const handleAddMessage = (text) => {
+    sendMessage(text, AUTHORS.ME)
   };
 
-  const handleAddMessage = (text) => {
-    setMessageList((prevMessageList) => [...prevMessageList, text]);
-  }
+    const sendMessage = (text, author) => {
+      const newMsg = {
+        text,
+        author,
+        id: `msg-${Date.now()}`,
+      };
+      setMessageList((prevMessageList) => [...prevMessageList, newMsg]);
+    };
+
+  useEffect(() => {
+    messageEnd.current?.scrollIntoView();
+    let timeout;
+    if (messageList[messageList.length - 1]?.author === AUTHORS.ME) {
+      timeout = setTimeout(() => {
+        sendMessage("Hello, human", AUTHORS.BOT);
+      }, 1000);
+    }
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [messageList]);
 
   return (
     <div className="App">
+      <GutterlessList />
       <header className="App-header">
-        {messageList.map((text) => (
-        <Message 
-        text={text}
-        onMessageClick={handelMessageClick} 
-        />
-        ))}
-        {/* <Counter /> */}
-        <Form onSubmit={handleAddMessage} />
+        <MessageList messages={messageList} />
+        <FormMui onSubmit={handleAddMessage} />
+        <div ref={messageEnd} />
       </header>
     </div>
   );
-}
+  }
 
 export default App;
