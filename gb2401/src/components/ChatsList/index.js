@@ -1,16 +1,31 @@
-import * as React from 'react';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
-import ListItemText from '@mui/material/ListItemText';
 import CommentIcon from '@mui/icons-material/Comment';
 import IconButton from '@mui/material/IconButton';
+import { Link, Outlet } from 'react-router-dom';
 
-export function GutterlessList() {
-    return (
+const chats = [
+    {
+        name: 'Chat 1',
+        id: 'chat1',
+    },
+    {
+        name: 'Chat 2',
+        id: 'chat2', 
+    },
+    {
+        name: 'Chat 3',
+        id: 'chat3',
+    },
+
+];
+
+export const ChatList = () => (
+    <>
     <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
-        {[1, 2, 3].map((value) => (
+        {chats.map((chat) => (
         <ListItem
-            key={value}
+            key={chat.id}
             disableGutters
             secondaryAction={
             <IconButton>
@@ -18,9 +33,11 @@ export function GutterlessList() {
             </IconButton>
         }
         >
-        <ListItemText primary={`Chat ${value}`} />
+            <Link to={`/chats/${chat.id}`}>{chat.name}</Link>
         </ListItem>
     ))}
     </List>
+    <Outlet />
+    </>
 );
-}
+
