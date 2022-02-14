@@ -1,12 +1,14 @@
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { Chat } from "../Chat"; 
 import { ChatList } from "../ChatsList";
+import { Profile } from "../Profile";
+import { ThemeContext } from "../utils/ThemeContext";
 
 const Main = () => <h2>Main page</h2>;
-const Profile = () => <h2>Profile page</h2>;
 
 export const Router = () => {
     return (
+    <ThemeContext.Provider value={{ theme: 'gray' }}>
     <BrowserRouter>
     <div>
         <Link to='/'>Main</Link>
@@ -26,5 +28,6 @@ export const Router = () => {
             <Route path='*' element={<h2>This page does not exist</h2>} />
         </Routes>
     </BrowserRouter>
+    </ThemeContext.Provider>
     );
 };
