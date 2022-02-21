@@ -1,13 +1,19 @@
 import '../../App.css';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { AUTHORS } from '../utils/constants';
 import { MessageList } from '../MessageList';
 import { FormMui } from '../FormMui';
 import { Navigate, useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectMessages } from '../../store/message/selectors';
+import { addMessageWithThunk } from '../../store/message/actions';
 
-export function Chat({ messages, addMessage }) {
+export function Chat() {
     const params = useParams();
     const { chatId } = params;
+
+    const messages = useSelector(selectMessages);
+    const dispatch = useDispatch();
 
     const messageEnd = useRef();
     const handleAddMessage = (text) => {
@@ -20,20 +26,20 @@ const sendMessage = (text, author) => {
         author,
         id: `msg-${Date.now()}`,
     };
-    addMessage(chatId, newMsg)
+    dispatch(addMessageWithThunk(chatId, newMsg));
     };
 
 useEffect(() => {
     //messageEnd.current?.scrollIntoView();
-    let timeout;
-    if (messages[chatId]?.[messages[chatId]?.length - 1]?.author === AUTHORS.ME) {
-        timeout = setTimeout(() => {
-        sendMessage("Hello, human", AUTHORS.BOT);
-    }, 1000);
-    }
-    return () => {
-        clearTimeout(timeout);
-    };
+    // let timeout;
+    // if (messages[chatId]?.[messages[chatId]?.length - 1]?.author === AUTHORS.ME) {
+    //     timeout = setTimeout(() => {
+    //     sendMessage("Hello, human", AUTHORS.BOT);
+    // }, 1000);
+    // }
+    // return () => {
+    //     clearTimeout(timeout);
+    // };
 }, [messages]);
 
 if (!messages[chatId]) {
