@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { Articles } from "../Articles/Articles";
 import { Chat } from "../Chat"; 
 import { ChatList } from "../ChatsList";
 import { Profile } from "../Profile";
@@ -17,6 +18,9 @@ export const Router = () => {
         <Link to='/chats'>Chats</Link>
     </div>
     <div>
+        <Link to='/articles'>Articles</Link>
+    </div>
+    <div>
         <Link to='/profile'>Profile</Link>
     </div>
         <Routes>
@@ -24,6 +28,7 @@ export const Router = () => {
             <Route path='chats'  element={<ChatList />}>
                 <Route path=':chatId' element={<Chat />} />
             </Route>
+            <Route path="articles" element={<Articles />}></Route>
             <Route path='profile' element={<Profile />} />
             <Route path='*' element={<h2>This page does not exist</h2>} />
         </Routes>
