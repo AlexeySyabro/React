@@ -1,20 +1,32 @@
 import List from '@mui/material/List';
-import { useDispatch, useSelector } from 'react-redux';
+import { onValue, set } from 'firebase/database';
+import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { addChat, } from '../../store/chats/actions';
-import { selectChats } from '../../store/chats/selectors';
+import { chatsRef, getChatsRefById, getMesssagesRefByChatId } from '../../servise/firebase';
 import { FormMui } from '../FormMui';
 import { ChatItem } from './ChatItem';
 
 
 export const ChatList = () => {
-    const chats = useSelector(selectChats);
-    const dispatch = useDispatch();
+    const [chats, setChats] = useState([]);
     
     const handleAddChat = (newChatName) => {
         const newId = `chat-${Date.now()}`;
-        dispatch(addChat(newId, newChatName));
+        set(getChatsRefById(newId), { id: newId, name: newChatName });
+        set(getMesssagesRefByChatId(newId), { empty: true });
     };
+
+    useEffect(() => {
+        const unsubscribe = onValue(chatsRef, (snapshot) => {
+            const newChats = [];
+            snapshot.forEach((child) => {
+                newChats.push(child.val());
+            });
+            setChats(newChats);
+        });
+
+        return unsubscribe;
+    });
 
     return (
     <>

@@ -1,19 +1,17 @@
 import '../../App.css';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AUTHORS } from '../utils/constants';
 import { MessageList } from '../MessageList';
 import { FormMui } from '../FormMui';
 import { Navigate, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { selectMessages } from '../../store/message/selectors';
-import { addMessageWithThunk } from '../../store/message/actions';
+import { onChildAdded, onValue, set } from 'firebase/database';
+import { getMesssageListRefByChatId, getMesssageRefById, getMesssagesRefByChatId } from '../../servise/firebase';
 
 export function Chat() {
     const params = useParams();
     const { chatId } = params;
 
-    const messages = useSelector(selectMessages);
-    const dispatch = useDispatch();
+    const [messages, setMessages] = useState([]);
 
     const messageEnd = useRef();
     const handleAddMessage = (text) => {
@@ -26,30 +24,50 @@ const sendMessage = (text, author) => {
         author,
         id: `msg-${Date.now()}`,
     };
-    dispatch(addMessageWithThunk(chatId, newMsg));
+    set(getMesssageRefById(chatId, newMsg.id), newMsg);
     };
+
+    useEffect(() => {
+        const unsubscribe = onChildAdded(getMesssageListRefByChatId(chatId),
+        (snapshot) => {
+            setMessages((prevMessages) => [...prevMessages, snapshot.val()]);
+        });
+
+        return unsubscribe;
+    }, [chatId]);
+
+    useEffect(() => {
+        const unsubscribe = onValue(getMesssagesRefByChatId(chatId), (snapshot) => {
+            if (!snapshot.val()?.empty) {
+                setMessages(null);
+            }
+        });
+
+        return unsubscribe;
+    }, [chatId]);
+
+    // useEffect(() => {
+    //     const unsubscribe = onChildRemoved(getMesssagesRefByChatId(chatId),
+    //     (snapshot) => {
+    //         setMessages((prevMessages) => 
+    //         prevMessages.filter(({ id }) => id !== snapshot.val()?.id));
+    //     });
+
+    //     return unsubscribe;
+    // }, [chatId]);
 
 useEffect(() => {
     //messageEnd.current?.scrollIntoView();
-    // let timeout;
-    // if (messages[chatId]?.[messages[chatId]?.length - 1]?.author === AUTHORS.ME) {
-    //     timeout = setTimeout(() => {
-    //     sendMessage("Hello, human", AUTHORS.BOT);
-    // }, 1000);
-    // }
-    // return () => {
-    //     clearTimeout(timeout);
-    // };
 }, [messages]);
 
-if (!messages[chatId]) {
+if (!messages) {
     return <Navigate to='/chats' replace />;
 }
 
 return (
     <div className="App">
     <header className="App-header">
-        <MessageList messages={messages[chatId]} />
+        <MessageList messages={messages} />
         <FormMui onSubmit={handleAddMessage} />
         <div ref={messageEnd} />
     </header>

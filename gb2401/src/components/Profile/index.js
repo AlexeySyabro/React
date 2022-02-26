@@ -1,24 +1,54 @@
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import { changeShowName } from "../../store/profile/actions";
-import { selectName, selectShowName } from "../../store/profile/selectors";
+import { onValue, set } from "firebase/database";
+import { useEffect, useState } from "react";
+import { logout, profileNameRef, profileShowNameRef } from "../../servise/firebase";
+import { FormMui } from "../FormMui";
 
 export const Profile = () => {
 
-    const dispatch = useDispatch();
-    const showName = useSelector(selectShowName, shallowEqual);
-    const name = useSelector(selectName);
+    const [name, setName] = useState('');
+    const [showName, setShowName] = useState(false);
 
     const handleChangeShowName = () => {
-        dispatch(changeShowName);
+        set(profileShowNameRef, !showName);
+    };
+
+    const handleChangeName = (text) => {
+        set(profileNameRef, text)
+    };
+
+    useEffect(() => {
+        const unsubscribeName = onValue(profileNameRef, (snapshot) => {
+            setName(snapshot.val())
+        });
+        const unsubscribeShowName = onValue(profileShowNameRef, (snapshot) => {
+            setShowName(snapshot.val())
+        });
+
+        return () => {
+            unsubscribeName();
+            unsubscribeShowName();
+        };
+    }, []);
+
+    const handleLogout = async () => {
+        try {
+            await logout();
+        } catch (e) {
+            console.warn(e);
+        }
     };
 
     return (
     <>
     <h2>Profile page</h2>
     <div>
-        {showName && <span>{name}</span>}
+        <button onClick={handleLogout}>LOGOUT</button>
+    </div>
+    <div>
+        {showName && <h3>{name}</h3>}
         <input type="checkbox" onClick={handleChangeShowName} />
     </div>
+    <FormMui onSubmit={handleChangeName} />
     </>
     );
 };
